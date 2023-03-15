@@ -26,13 +26,16 @@ def closed_form(X, Y, lambda_factor):
         theta - (d + 1, ) NumPy array containing the weights of linear regression. Note that theta[0]
         represents the y-axis intercept of the model and therefore X[0] = 1
     """
+    # YOUR CODE HERE
     I = IdentityMatrix(X.shape[1])    
     step1 = np.dot(X.T,X)
     step2 = np.add(step1, np.dot(lambda_factor, I))
     step3 = np.linalg.inv(step2)
     theta = np.dot(step3, np.dot(X.T,Y))
     return theta
+    # raise NotImplementedError
 
+### Functions which are already complete, for you to use ###
 
 def compute_test_error_linear(test_x, Y, theta):
     test_y_predict = np.round(np.dot(test_x, theta))
