@@ -39,6 +39,7 @@ def compute_probabilities(X, theta, temp_parameter):
     # raise NotImplementedError
 
 def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
+    
     """
     Computes the total cost over every datapoint.
 
@@ -55,7 +56,17 @@ def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
         c - the cost value (scalar)
     """
     #YOUR CODE HERE
-    raise NotImplementedError
+    n = X.shape[0]
+    prob = compute_probabilities(X,theta,temp_parameter)
+    # exclude very small values to avoid nan results
+    prob = np.clip(prob,1e-15,1-1e-15)
+    prob_log = np.log(prob) 
+    #  create a matrix to show which element in the matrix satisfy [[yi==j]]
+    yi_j = sparse.coo_matrix(([1]*n, (Y, range(n))), shape = (theta.shape[0],n)).toarray()
+    _er = (-1/n)*np.sum(prob_log[yi_j==1])
+    _reg = (lambda_factor/2)*np.linalg.norm(theta)**2
+    return _er+_reg
+    # raise NotImplementedError
 
 def run_gradient_descent_iteration(X, Y, theta, alpha, lambda_factor, temp_parameter):
     """
@@ -74,8 +85,16 @@ def run_gradient_descent_iteration(X, Y, theta, alpha, lambda_factor, temp_param
     Returns:
         theta - (k, d) NumPy array that is the final value of parameters theta
     """
-    #YOUR CODE HERE
-    raise NotImplementedError
+    n = X.shape[0]
+    #  create a matrix to show which element in the matrix satisfy [[yi==j]]
+    yi_j = sparse.coo_matrix(([1]*n, (Y, range(n))), shape = (theta.shape[0],n)).toarray()
+    prob = compute_probabilities(X, theta, temp_parameter)
+    # gradient descent
+    theta_x = (-1/(temp_parameter*n))*((yi_j - prob) @ X) + lambda_factor*theta
+    # update the theta with gradient descent result
+    theta = theta - alpha*theta_x
+    return theta
+    # raise NotImplementedError
 
 def update_y(train_y, test_y):
     """
@@ -95,7 +114,11 @@ def update_y(train_y, test_y):
                     for each datapoint in the test set
     """
     #YOUR CODE HERE
-    raise NotImplementedError
+    train_y_mod3 = np.mod(train_y, 3)
+    test_y_mod3 = np.mod(test_y, 3)
+    
+    return (train_y_mod3, test_y_mod3)
+    # raise NotImplementedError
 
 def compute_test_error_mod3(X, Y, theta, temp_parameter):
     """
@@ -113,7 +136,10 @@ def compute_test_error_mod3(X, Y, theta, temp_parameter):
         test_error - the error rate of the classifier (scalar)
     """
     #YOUR CODE HERE
-    raise NotImplementedError
+    y_pred = get_classification(X, theta, temp_parameter)
+    test_error= 1 - (np.mod(y_pred, 3) == Y).mean()
+    return test_error
+    # raise NotImplementedError
 
 def softmax_regression(X, Y, temp_parameter, alpha, lambda_factor, k, num_iterations):
     """
